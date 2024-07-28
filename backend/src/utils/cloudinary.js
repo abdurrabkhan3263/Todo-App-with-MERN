@@ -3,9 +3,9 @@ const ApiError = require("./ApiError");
 const fs = require("fs");
 
 cloudinary.config({
-  cloud_name: "dliujfjmi",
-  api_key: "654573165215475",
-  api_secret: "z4sZv4Ykb0Gf-t7g15tMrG5WKhM",
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 });
 
 const cloudinaryUpload = async (filePath) => {
@@ -20,7 +20,7 @@ const cloudinaryUpload = async (filePath) => {
     fs.unlink(filePath, () => {
       throw new ApiError(
         500,
-        `Error Occur when we upload on the cloudinary :: ${error}`,
+        `Error Occur when we upload on the cloudinary :: ${error}`
       );
     });
   }
@@ -64,7 +64,7 @@ const cloudinaryRemove = (public_id, resource_type) => {
         } else {
           resolve(result);
         }
-      },
+      }
     );
   });
 };

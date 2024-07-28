@@ -7,14 +7,18 @@ const fs = require("fs");
 const jwt = require("jsonwebtoken");
 
 const generateRefreshToken = async (user) => {
-  const accessToken = await user.generateAccessToken();
-  const refreshToken = await user.generateRefreshToken();
+  try {
+    const accessToken = await user.generateAccessToken();
+    const refreshToken = await user.generateRefreshToken();
 
-  user.refreshToken = refreshToken;
+    user.refreshToken = refreshToken;
 
-  await user.save({ validateBeforeSave: false });
+    await user.save({ validateBeforeSave: false });
 
-  return { accessToken, refreshToken };
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new ApiError(500, "Server internal error");
+  }
 };
 
 const options = {
@@ -25,6 +29,7 @@ const options = {
 const register = asyncHandler(async (req, res) => {
   const { fullName, email, username, password: pass, bio } = req.body;
   const files = req.file;
+  console.log(files, req.body);
 
   if (!files) throw new ApiError(400, "Avatar image is required");
 
@@ -86,9 +91,8 @@ const logIn = async (req, res, next) => {
 
     if (!isPasswordCorrect) throw new ApiError(400, "Invalid user credential");
 
-    const { accessToken, refreshToken: refToken } = await generateRefreshToken(
-      user
-    );
+    const { accessToken, refreshToken: refToken } =
+      await generateRefreshToken(user);
 
     const jsObj = user.toObject();
 

@@ -7,11 +7,11 @@ app.use(
   cors({
     origin: process.env.CORS,
     credentials: true,
-  }),
+  })
 );
 app.use(express.json({ limit: "16kb" }));
 app.use(express.static("public"));
-// app.use(express.urlencoded({ extended: true, limit: true }));
+app.use(express.urlencoded({ extended: true, limit: true }));
 app.use(cookieParser());
 
 // ALL ROUTES

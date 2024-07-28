@@ -1,8 +1,10 @@
 const connectToDb = require("./db/index.js");
 const dotEnv = require("dotenv");
 const app = require("./app.js");
+const errorMiddleware = require("./middleware/error.middleware.js");
 dotEnv.config();
 
+app.use(errorMiddleware);
 connectToDb()
   .then(() => {
     app.listen(process.env.PORT, () => {

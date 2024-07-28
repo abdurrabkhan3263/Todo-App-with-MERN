@@ -8,7 +8,8 @@ const appContext = createContext({
   },
   mode: "light",
   changeMode: () => {},
-  changeUser: () => {},
+  loginUser: () => {},
+  logoutUser: () => {},
 });
 
 export const AppProvider = appContext.Provider;

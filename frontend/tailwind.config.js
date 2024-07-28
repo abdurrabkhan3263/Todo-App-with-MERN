@@ -60,6 +60,10 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      boxShadowColor: {
+        dark: "#00000040",
+        light: "#ffffff14",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

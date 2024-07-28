@@ -1,7 +1,7 @@
 import React from "react";
 
 function Container({ children }) {
-  return <div className="col-start-4 col-end-[16] pl-12">{children}</div>;
+  return <div className="w-full pl-[370px]">{children}</div>;
 }
 
 export default Container;
