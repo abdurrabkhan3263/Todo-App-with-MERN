@@ -13,7 +13,7 @@ function SimpleLoader({ width, height, fill }) {
         display: "block",
         background: "transparent",
       }}
-      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
     >
       <g>
         <g transform="rotate(0 50 50)">

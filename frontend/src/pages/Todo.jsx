@@ -15,9 +15,6 @@ function Todo() {
     queryKey: ["todos"],
     queryFn: async () => await TodoApi.getDirectTodo(),
   });
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
   return (
     <div className="flex h-full w-full flex-col">
       <div
@@ -38,6 +35,7 @@ function Todo() {
                   content={content}
                   isCompleted={isCompleted}
                   isImportant={isImportant}
+                  id={_id}
                 />
               </div>
             ))}

@@ -17,6 +17,7 @@ function App() {
     (async () => {
       try {
         const response = await UserApi.getCurrentUser();
+        navigate("");
         loginUser(response?.data);
       } catch (error) {
         setIsError(true);
@@ -45,7 +46,7 @@ function App() {
 
   useEffect(() => {
     const mode = JSON.parse(localStorage.getItem("mode"));
-    setMode(mode);
+    setMode(mode || "light");
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListTodo,
@@ -10,7 +10,7 @@ import {
 } from "../assets/icons";
 import useApp from "@/context/context";
 import { Button } from "./ui/button";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import UserApi from "@/Api/User";
 
@@ -40,6 +40,8 @@ const navInfo = [
 function SideNav() {
   const { mode, changeMode, logoutUser } = useApp();
   const navigate = useNavigate();
+  const [url, setUrl] = useState("");
+  const location = useLocation();
   const handleLogout = async () => {
     try {
       const response = await UserApi.logoutUser();
@@ -52,6 +54,21 @@ function SideNav() {
       navigate("/login");
     }
   };
+  useEffect(() => {
+    console.log(url);
+    if (url?.trim()) {
+      localStorage.setItem("url", JSON.stringify(location.pathname));
+    }
+  }, [location]);
+  useEffect(() => {
+    const parsedUrl = JSON.parse(localStorage.getItem("url"));
+    console.log(parsedUrl);
+    if (!parsedUrl) {
+      setUrl("/");
+    } else {
+      setUrl(parsedUrl);
+    }
+  }, []);
   return (
     <div
       className={`fixed top-1/2 w-[320px] -translate-y-1/2 overflow-hidden rounded-2xl px-4 shadow-xl shadow-[#00000030] ${mode === "light" ? "bg-lightNav" : "border border-white bg-dark text-white"} `}
