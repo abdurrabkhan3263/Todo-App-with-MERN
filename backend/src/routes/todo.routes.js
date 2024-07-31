@@ -20,7 +20,7 @@ router.route("/delete/:todo_id").delete(deleteTodo);
 router.route("/update/:todo_id").patch(updateTodo);
 router.route("/complete").patch(completeTodo);
 router.route("/get").get(getDirectAllTodo);
-router.route("/is-important").patch(isImportant);
+router.route("/setimportant").patch(isImportant);
 router.route("/get-important").get(getImportant);
 
 module.exports = router;

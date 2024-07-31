@@ -156,10 +156,8 @@ const getImportant = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-        fullName: 1,
-        username: 1,
-        avatar: "$avatar.url",
         todos: 1,
+        _id: false,
       },
     },
   ]);
@@ -168,7 +166,7 @@ const getImportant = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        getImportantTodo[0],
+        getImportantTodo[0].todos,
         "Important todo fetched successfully"
       )
     );

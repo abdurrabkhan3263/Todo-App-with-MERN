@@ -15,11 +15,7 @@ const listSchema = Schema(
       trim: true,
     },
     theme: {
-      type: [
-        {
-          type: Object,
-        },
-      ],
+      type: Object,
     },
     isInGroup: {
       type: Boolean,
