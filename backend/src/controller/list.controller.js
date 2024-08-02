@@ -71,16 +71,10 @@ const deleteList = asyncHandler(async (req, res) => {
 
 const updateList = asyncHandler(async (req, res) => {
   const { list_id } = req.params;
-  const { listName = "", description = "", theme = "" } = req.body;
+  const { listName = "", description = "" } = req.body;
 
   if (!isValidObjectId(list_id)) throw new ApiError(400, "Invalid list id");
-  if (
-    !(
-      listName.trim() ||
-      description.trim() ||
-      (theme && typeof theme === "object" && Object.keys(theme).length > 0)
-    )
-  )
+  if (!(listName.trim() || description.trim()))
     throw new ApiError(
       400,
       "Atleast one field ( listName , description , theme ) is required"
@@ -90,15 +84,14 @@ const updateList = asyncHandler(async (req, res) => {
 
   if (listName.trim()) updateValue.listName = listName;
   if (description.trim()) updateValue.description = description;
-  if (Object.keys(theme).length > 0) updateValue.theme = theme;
 
   const updatedList = await List.findByIdAndUpdate(list_id, updateValue, {
     new: true,
   });
 
   return res
-    .status(400)
-    .json(new ApiResponse(400, updatedList, "List is updated successfully"));
+    .status(200)
+    .json(new ApiResponse(200, updatedList, "List is updated successfully"));
 });
 
 const getAllLists = asyncHandler(async (req, res) => {

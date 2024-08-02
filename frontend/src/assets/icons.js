@@ -6,5 +6,20 @@ import { Moon } from "lucide-react";
 import { Sun } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { LucidePlus as Plus } from "lucide-react";
+import { Trash2 as Delete } from "lucide-react";
+import { Edit } from "lucide-react";
+import { Save } from "lucide-react";
 
-export { List, ListTodo, Group, Star, Moon, Sun, LogOut, Plus };
+export {
+  List,
+  ListTodo,
+  Group,
+  Star,
+  Moon,
+  Sun,
+  LogOut,
+  Plus,
+  Delete,
+  Edit,
+  Save,
+};

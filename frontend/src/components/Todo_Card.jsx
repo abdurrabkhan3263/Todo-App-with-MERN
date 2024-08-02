@@ -6,6 +6,7 @@ import SimpleLoader from "@/assets/SimpleLoader";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TodoApi from "@/Api/Todo";
 import { toast } from "sonner";
+import "./ui/scroll.css";
 
 function Todo_Card({ title, content, id, isImportant, isCompleted }) {
   const [todoData, setTodoData] = useState({ todoName: title, content });
@@ -20,7 +21,6 @@ function Todo_Card({ title, content, id, isImportant, isCompleted }) {
     mutationKey: ["imp"],
     mutationFn: async () => await TodoApi.setIsImportant(id),
     onSuccess: (result) => {
-      console.log("fun call");
       toast.success(result.message);
       setTimeout(() => {
         gsap.to(loader.current, {
@@ -90,7 +90,7 @@ function Todo_Card({ title, content, id, isImportant, isCompleted }) {
   };
   return (
     <div
-      className={`flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-[-0.15rem] hover:scale-[1.02] ${mode === "dark" ? "bg-darkCard shadow-lg shadow-light" : "bg-lightCard shadow-lg shadow-dark"} p-4`}
+      className={`wow flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-[-0.15rem] hover:scale-[1.02] ${mode === "dark" ? "bg-darkCard shadow-lg shadow-light" : "bg-lightCard shadow-lg shadow-dark"} p-4`}
     >
       <div className="flex items-center justify-between">
         <input type="checkbox" name="" id="" className="h-6 w-6" />
@@ -110,8 +110,8 @@ function Todo_Card({ title, content, id, isImportant, isCompleted }) {
           </div>
         </button>
       </div>
-      <div className="flex-grow">
-        <div className="h-[60%]">
+      <div className="flex-grow overflow-hidden">
+        <div className="h-[60%] overflow-hidden">
           <textarea
             value={todoData.todoName}
             onChange={handleChange}
@@ -119,7 +119,7 @@ function Todo_Card({ title, content, id, isImportant, isCompleted }) {
             className="mt-2.5 h-full w-full resize-none bg-transparent text-center text-6xl font-bold outline-none"
           ></textarea>
         </div>
-        <div className="h-[40%]">
+        <div className="h-[40%] overflow-hidden">
           <textarea
             value={todoData.content}
             onChange={handleChange}

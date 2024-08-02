@@ -139,8 +139,6 @@ const removeList = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  console.log(updatedGroup);
-
   await List.updateMany(
     { _id: { $in: list_id } },
     {

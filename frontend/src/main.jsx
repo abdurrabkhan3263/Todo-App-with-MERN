@@ -15,7 +15,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 useQueryClient;
-import { SignInForm, LoginForm } from "./components/index.js";
+import { SignInForm, LoginForm, AddTodo, AddList } from "./components/index.js";
 import { Toaster } from "./components/ui/sonner.jsx";
 
 const router = createBrowserRouter(
@@ -37,8 +37,12 @@ const router = createBrowserRouter(
           </Auth>
         }
       />
-      <Route path="" element={<Todo />} />
-      <Route path="/List" element={<List />} />
+      <Route path="" element={<Todo />}>
+        <Route path="/todo" element={<AddTodo />} />
+      </Route>
+      <Route path="/List" element={<List />}>
+        <Route path="add-list" element={<AddList />} />
+      </Route>
       <Route path="/group" element={<Group />} />
       <Route path="/important" element={<Important />} />
     </Route>,

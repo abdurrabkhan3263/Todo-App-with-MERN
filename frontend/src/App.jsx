@@ -16,8 +16,9 @@ function App() {
   useEffect(() => {
     (async () => {
       try {
+        const url = JSON.parse(localStorage.getItem("url"));
         const response = await UserApi.getCurrentUser();
-        navigate("");
+        navigate(url);
         loginUser(response?.data);
       } catch (error) {
         setIsError(true);
@@ -51,7 +52,9 @@ function App() {
 
   return (
     <AppProvider value={{ mode, user, changeMode, loginUser, logoutUser }}>
-      <div className={`${mode === "light" ? "bg-white" : "bg-dark"}`}>
+      <div
+        className={`min-h-screen ${mode === "light" ? "bg-white" : "bg-dark"}`}
+      >
         {isLoading ? (
           <div
             className={`flex h-screen w-screen items-center justify-center ${mode === "light"}`}

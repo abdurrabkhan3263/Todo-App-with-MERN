@@ -42,6 +42,7 @@ function SideNav() {
   const navigate = useNavigate();
   const [url, setUrl] = useState("");
   const location = useLocation();
+
   const handleLogout = async () => {
     try {
       const response = await UserApi.logoutUser();
@@ -55,20 +56,20 @@ function SideNav() {
     }
   };
   useEffect(() => {
-    console.log(url);
     if (url?.trim()) {
       localStorage.setItem("url", JSON.stringify(location.pathname));
     }
-  }, [location]);
+  }, [location.pathname]);
+
   useEffect(() => {
     const parsedUrl = JSON.parse(localStorage.getItem("url"));
-    console.log(parsedUrl);
     if (!parsedUrl) {
       setUrl("/");
     } else {
       setUrl(parsedUrl);
     }
   }, []);
+
   return (
     <div
       className={`fixed top-1/2 w-[320px] -translate-y-1/2 overflow-hidden rounded-2xl px-4 shadow-xl shadow-[#00000030] ${mode === "light" ? "bg-lightNav" : "border border-white bg-dark text-white"} `}

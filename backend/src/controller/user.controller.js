@@ -29,7 +29,6 @@ const options = {
 const register = asyncHandler(async (req, res) => {
   const { fullName, email, username, password: pass, bio } = req.body;
   const files = req.file;
-  console.log(files, req.body);
 
   if (!files) throw new ApiError(400, "Avatar image is required");
 
