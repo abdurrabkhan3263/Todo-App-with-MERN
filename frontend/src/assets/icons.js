@@ -9,6 +9,7 @@ import { LucidePlus as Plus } from "lucide-react";
 import { Trash2 as Delete } from "lucide-react";
 import { Edit } from "lucide-react";
 import { Save } from "lucide-react";
+import { MoveUpRight } from "lucide-react";
 
 export {
   List,
@@ -22,4 +23,5 @@ export {
   Delete,
   Edit,
   Save,
+  MoveUpRight,
 };

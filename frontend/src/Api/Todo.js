@@ -53,24 +53,9 @@ class Todo {
       throw error;
     }
   }
-  async updateList(id, data) {
-    console.log("hello");
-    try {
-      const response = await fetch(`${this.baseUrl}/list/update/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-      const result = await response.json();
-      if (!response.ok) throw result.message || "Something went wrong";
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
+
+  // DELETING
+
   async deleteLists(id) {
     try {
       const response = await fetch(`${this.baseUrl}/list/delete/${id}`, {
@@ -121,6 +106,41 @@ class Todo {
       return result;
     } catch (error) {
       console.log(error);
+      throw error;
+    }
+  }
+  async updateList(id, data) {
+    console.log("hello");
+    try {
+      const response = await fetch(`${this.baseUrl}/list/update/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async createList(data) {
+    try {
+      const response = await fetch(`${this.baseUrl}/list/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
       throw error;
     }
   }

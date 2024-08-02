@@ -37,7 +37,7 @@ function List() {
               <div key={_id}>
                 <List_Card
                   title={listName}
-                  content={description}
+                  content={description || ""}
                   color={theme}
                   id={_id}
                 />

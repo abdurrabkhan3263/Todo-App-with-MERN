@@ -1,9 +1,9 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import useApp from "@/context/context";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TodoApi from "@/Api/Todo";
 import { toast } from "sonner";
-import { Delete, Edit, Save } from "@/assets/icons";
+import { Delete, Edit, MoveUpRight, Save } from "@/assets/icons";
 import gsap from "gsap";
 import "./ui/scroll.css";
 
@@ -48,10 +48,6 @@ function List_Card({ title, content, id, color }) {
     },
   });
 
-  // React.useEffect(() => {
-  //   console.log(title);
-  // }, [title]);
-
   const updateListData = useMemo(() => {
     const updateValue = {};
     if (disEdit.initial) {
@@ -75,7 +71,7 @@ function List_Card({ title, content, id, color }) {
     onError: (message) => toast.error(message),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disEdit.initial) {
       if (Object.keys(updateListData).length > 0 && disEdit.isSave) {
         updateMutation.mutate();
@@ -86,6 +82,10 @@ function List_Card({ title, content, id, color }) {
 
   const handleDelete = () => {
     deleteMutation.mutate(id);
+  };
+
+  const handleListRouting = () => {
+    console.log("routable");
   };
   return (
     <>
@@ -108,7 +108,7 @@ function List_Card({ title, content, id, color }) {
         </div>
       )}
       <div
-        className={`wow flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-[-0.15rem] hover:scale-[1.02] ${mode === "dark" ? `shadow-lg shadow-light` : "shadow-lg shadow-dark"} p-4`}
+        className={`wow relative flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-[-0.15rem] hover:scale-[1.02] ${mode === "dark" ? `shadow-lg shadow-light` : "shadow-lg shadow-dark"} p-4`}
         style={{
           backgroundColor:
             mode === "dark"
