@@ -8,7 +8,14 @@ import TodoApi from "@/Api/Todo";
 import { toast } from "sonner";
 import "./ui/scroll.css";
 
-function Todo_Card({ title, content, id, isImportant, isCompleted }) {
+function Todo_Card({
+  title,
+  content,
+  id,
+  isImportant,
+  isCompleted,
+  belongsTo,
+}) {
   const [todoData, setTodoData] = useState({ todoName: title, content });
   const [preventDoubleClick, setPreventDoubleClick] = useState(false);
   const [boolValue, setBoolValue] = useState({ isImportant, isCompleted });
@@ -37,7 +44,10 @@ function Todo_Card({ title, content, id, isImportant, isCompleted }) {
         });
       }, 500);
       setPreventDoubleClick(false);
-      client.invalidateQueries({ queryKey: ["todos"] });
+      belongsTo === "todo"
+        ? client.invalidateQueries({ queryKey: ["todos"] })
+        : client.invalidateQueries({ queryKey: ["listTodos"] });
+
       setTimeout(() => {
         client.invalidateQueries({ queryKey: ["getImpTodo"] });
       }, 510);

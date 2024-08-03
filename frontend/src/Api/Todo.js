@@ -53,7 +53,27 @@ class Todo {
       throw error;
     }
   }
+  async getListsTodos(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/list/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
 
+      return {
+        listName: result.data?.listName,
+        todos: result.data?.todos,
+        message: result.message,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
   // DELETING
 
   async deleteLists(id) {
@@ -85,6 +105,24 @@ class Todo {
       const result = await response.json();
       if (!response.ok) throw result?.message || "Something went wrong";
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async createListTodo(id, data) {
+    try {
+      const response = await fetch(`${this.baseUrl}/todo/create/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      console.log(result);
+      return result.message;
     } catch (error) {
       throw error;
     }

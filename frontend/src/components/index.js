@@ -6,6 +6,7 @@ import Todo_Card from "./Todo_Card";
 import AddCard from "./AddCard";
 import AddTodo from "./AddTodo";
 import AddList from "./AddList";
+import AddGroup from "./AddGroup";
 
 export {
   SideNav,
@@ -16,4 +17,5 @@ export {
   AddCard,
   AddTodo,
   AddList,
+  AddGroup,
 };

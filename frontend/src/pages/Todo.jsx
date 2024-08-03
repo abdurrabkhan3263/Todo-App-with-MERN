@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AddCard, Todo_Card } from "@/components";
 import useApp from "@/context/context";
 import TodoApi from "@/Api/Todo";
@@ -40,6 +40,7 @@ function Todo() {
                   isCompleted={isCompleted}
                   isImportant={isImportant}
                   id={_id}
+                  belongsTo={"todo"}
                 />
               </div>
             ))}

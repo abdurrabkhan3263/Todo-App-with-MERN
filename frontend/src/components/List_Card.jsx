@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Delete, Edit, MoveUpRight, Save } from "@/assets/icons";
 import gsap from "gsap";
 import "./ui/scroll.css";
+import { Link } from "react-router-dom";
 
 function List_Card({ title, content, id, color }) {
   const [listData, setListData] = useState({ listName: title, content, color });
@@ -19,6 +20,7 @@ function List_Card({ title, content, id, color }) {
   const client = useQueryClient();
   const edit = useRef(null);
   const save = useRef(null);
+  const navBox = useRef(null);
   const { mode } = useApp();
 
   function animateButton(isEdit) {
@@ -84,8 +86,19 @@ function List_Card({ title, content, id, color }) {
     deleteMutation.mutate(id);
   };
 
-  const handleListRouting = () => {
-    console.log("routable");
+  const mouseEnter = () => {
+    gsap.to(navBox.current, {
+      display: "flex",
+      backgroundColor: "rgba(0,0,0,0.5)",
+      duration: 0.2,
+    });
+  };
+  const mouseLeave = () => {
+    gsap.to(navBox.current, {
+      display: "none",
+      backgroundColor: "rgb(0,0,0,0.1)",
+      duration: 0.2,
+    });
   };
   return (
     <>
@@ -116,6 +129,14 @@ function List_Card({ title, content, id, color }) {
               : color?.lightColor || "#9c9c9c",
         }}
       >
+        <div
+          ref={navBox}
+          className="absolute right-1/2 top-0 z-[999] hidden h-full w-full translate-x-1/2 content-center text-center"
+          onMouseEnter={mouseEnter}
+          onMouseLeave={mouseLeave}
+        >
+          <Link to={`/todo/${id}`}>Click</Link>
+        </div>
         <div className="flex items-center justify-between">
           <button
             className="fit relative h-[40px] w-[40px] rounded-full bg-slate-200 p-2 text-stone-700 hover:bg-lightNav hover:text-white"
@@ -143,7 +164,11 @@ function List_Card({ title, content, id, color }) {
             <Delete />
           </button>
         </div>
-        <div className="flex-grow overflow-hidden">
+        <div
+          className="flex-grow overflow-hidden"
+          onMouseEnter={mouseEnter}
+          onMouseLeave={mouseLeave}
+        >
           <div className="h-[60%] overflow-hidden">
             <textarea
               value={listData.listName}

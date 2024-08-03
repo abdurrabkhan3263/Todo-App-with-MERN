@@ -6,16 +6,18 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TodoApi from "@/Api/Todo";
-import { useNavigate } from "react-router-dom";
+import { Router, useNavigate, useParams } from "react-router-dom";
 import useApp from "@/context/context";
+import { useEffect } from "react";
 
 function AddTodo() {
   const { register, handleSubmit, setValue } = useForm();
   const { mode } = useApp();
   const navigate = useNavigate();
   const client = useQueryClient();
+  const { id } = useParams();
 
-  const handleFormMutation = useMutation({
+  const handleTodoMutation = useMutation({
     mutationKey: ["crTodo"],
     mutationFn: async (data) => TodoApi.createTodo(data),
     onSuccess: async (result) => {
@@ -28,10 +30,35 @@ function AddTodo() {
     },
     onMessage: async (result) => toast.success(result.message),
   });
+  const handleListTodoMutation = useMutation({
+    mutationKey: ["listTodos"],
+    mutationFn: async (data) => await TodoApi.createListTodo(id, data),
+    onSuccess: (message) => {
+      toast.success(message);
+      client.invalidateQueries({ queryKey: ["listTodos"] });
+    },
+    onError: (error) => toast.error(error),
+  });
 
   const formSubmit = (data) => {
-    handleFormMutation.mutate(data);
+    if (!id) {
+      handleTodoMutation.mutate(data);
+    } else {
+      handleListTodoMutation.mutate(data);
+    }
   };
+
+  const handleBackNav = () => {
+    if (!id) {
+      navigate(-1);
+    } else {
+      navigate(-1);
+    }
+  };
+
+  useEffect(() => {
+    console.log(id);
+  }, [id]);
 
   return (
     <div
@@ -39,7 +66,7 @@ function AddTodo() {
     >
       <div className="flex h-12 w-full items-center justify-between">
         <p className="text-3xl font-semibold text-gray-700">Todo</p>
-        <button className="h-full" onClick={() => navigate("/")}>
+        <button className="h-full" onClick={() => handleBackNav()}>
           <X width={"35px"} height={"35px"} />
         </button>
       </div>

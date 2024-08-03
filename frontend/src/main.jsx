@@ -2,7 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import { Todo, List, Group, Important, Auth } from "./pages/index.js";
+import {
+  Todo,
+  List,
+  Group,
+  Important,
+  Auth,
+  List_Todo,
+} from "./pages/index.js";
 import {
   Route,
   RouterProvider,
@@ -15,7 +22,13 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 useQueryClient;
-import { SignInForm, LoginForm, AddTodo, AddList } from "./components/index.js";
+import {
+  SignInForm,
+  LoginForm,
+  AddTodo,
+  AddList,
+  AddGroup,
+} from "./components/index.js";
 import { Toaster } from "./components/ui/sonner.jsx";
 
 const router = createBrowserRouter(
@@ -43,8 +56,13 @@ const router = createBrowserRouter(
       <Route path="/List" element={<List />}>
         <Route path="add-list" element={<AddList />} />
       </Route>
-      <Route path="/group" element={<Group />} />
+      <Route path="/group" element={<Group />}>
+        <Route path="add-group" element={<AddGroup />} />
+      </Route>
       <Route path="/important" element={<Important />} />
+      <Route path="/todo/:id" element={<List_Todo />}>
+        <Route path="todo" element={<AddTodo />} />
+      </Route>
     </Route>,
   ),
 );
