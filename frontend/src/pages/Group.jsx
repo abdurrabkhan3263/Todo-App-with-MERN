@@ -1,15 +1,20 @@
 import React from "react";
-import { AddCard, List_Card } from "@/components";
+import { AddCard, Group_Card, List_Card } from "@/components";
 import { Outlet } from "react-router-dom";
 import useApp from "@/context/context";
 import { useQuery } from "@tanstack/react-query";
+import TodoApi from "@/Api/Todo";
 
 function Group() {
   const { mode } = useApp();
 
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data: { data } = "",
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["group"],
-    queryFn: async () => "",
+    queryFn: async () => TodoApi.getGroup(),
   });
 
   return (
@@ -23,21 +28,22 @@ function Group() {
         Group
       </div>
       <div className="mt-6 grid h-full w-full flex-1 grid-cols-4 gap-6">
-        <AddCard navLink={"add-group"} />
-        {isLoading
-          ? "Loading......"
-          : Array.isArray(data) &&
-            data.length > 0 &&
-            data.map(({ _id, listName, description, theme }) => (
-              <div key={_id}>
-                <List_Card
-                  title={listName}
-                  content={description || ""}
-                  color={theme}
-                  id={_id}
-                />
-              </div>
-            ))}
+        {isLoading ? (
+          "Loading......"
+        ) : (
+          <>
+            <AddCard navLink={"add-group"} />
+            {Array.isArray(data) && data.length > 0 ? (
+              data.map(({ _id, name }) => (
+                <div key={_id} className="relative">
+                  <Group_Card id={_id} groupName={name} />
+                </div>
+              ))
+            ) : (
+              <div className="text-2xl">No Group Found</div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

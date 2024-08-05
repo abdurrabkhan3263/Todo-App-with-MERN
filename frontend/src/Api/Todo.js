@@ -74,6 +74,71 @@ class Todo {
       throw error;
     }
   }
+  async getGroup() {
+    try {
+      const response = await fetch(`${this.baseUrl}/group`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getGroupList(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/group/list/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getGroupById(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/group/${id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const result = await response.json();
+
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getListForAdding(groupId) {
+    try {
+      if (groupId) {
+        const response = await Promise.all([
+          this.getLists(),
+          this.getGroupList(groupId),
+        ]);
+        const [listData, groupData] = await response;
+        const groupList = groupData?.data?.lists || [];
+        return [...listData, ...groupList];
+      } else {
+        const response = await this.getLists();
+        return response;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   // DELETING
 
   async deleteLists(id) {
@@ -121,7 +186,6 @@ class Todo {
       });
       const result = await response.json();
       if (!response.ok) throw result?.message || "Something went wrong";
-      console.log(result);
       return result.message;
     } catch (error) {
       throw error;
@@ -143,12 +207,10 @@ class Todo {
 
       return result;
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
   async updateList(id, data) {
-    console.log("hello");
     try {
       const response = await fetch(`${this.baseUrl}/list/update/${id}`, {
         method: "PATCH",
@@ -178,6 +240,21 @@ class Todo {
       const result = await response.json();
       if (!response.ok) throw result?.message || "Something went wrong";
       return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async createGroup(data) {
+    try {
+      const response = await fetch(`${this.baseUrl}/group/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result.message;
     } catch (error) {
       throw error;
     }

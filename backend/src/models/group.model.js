@@ -9,7 +9,7 @@ const groupSchema = Schema(
       trim: true,
       index: true,
     },
-    list: [
+    listIds: [
       {
         type: Schema.Types.ObjectId,
         ref: "List",
@@ -22,9 +22,6 @@ const groupSchema = Schema(
   },
   { timestamps: true }
 );
-
-
-
 
 groupSchema.plugin(aggregate);
 

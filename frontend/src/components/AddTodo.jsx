@@ -56,10 +56,6 @@ function AddTodo() {
     }
   };
 
-  useEffect(() => {
-    console.log(id);
-  }, [id]);
-
   return (
     <div
       className={`flex h-[70vh] w-[27vw] flex-col items-center ${mode === "dark" ? "border-white" : "border-gray-700"} justify-between rounded-xl border bg-slate-300 p-5 shadow-lg`}

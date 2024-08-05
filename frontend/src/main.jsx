@@ -9,6 +9,7 @@ import {
   Important,
   Auth,
   List_Todo,
+  GroupList,
 } from "./pages/index.js";
 import {
   Route,
@@ -57,12 +58,13 @@ const router = createBrowserRouter(
         <Route path="add-list" element={<AddList />} />
       </Route>
       <Route path="/group" element={<Group />}>
-        <Route path="add-group" element={<AddGroup />} />
+        <Route path="add-group/:group_id?" element={<AddGroup />} />
       </Route>
       <Route path="/important" element={<Important />} />
       <Route path="/todo/:id" element={<List_Todo />}>
         <Route path="todo" element={<AddTodo />} />
       </Route>
+      <Route path="/group-list/:id" element={<GroupList />} />
     </Route>,
   ),
 );

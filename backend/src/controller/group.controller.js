@@ -8,12 +8,14 @@ const mongoose = require("mongoose");
 
 const createGroup = asyncHandler(async (req, res) => {
   const user = req?.user;
-  const { name = "", listTodo = "" } = req.body;
+  const { name = "", listIds = "" } = req.body;
 
-  if (Array.isArray(listTodo) && listTodo.length <= 0)
+  if (Array.isArray(listIds) && listIds.length <= 0)
     throw new ApiError(400, "List must be in the array and not empty");
 
-  const findList = await List.find({ _id: { $in: listTodo } });
+  const findList = await List.find({ _id: { $in: listIds } });
+  if (findList.length !== listIds.length)
+    throw new ApiError(400, "Lists is not found");
 
   if (findList.some((lists) => lists?.isInGroup))
     throw new ApiError(400, "List already exits in group");
@@ -21,19 +23,19 @@ const createGroup = asyncHandler(async (req, res) => {
   if (!name?.trim()) throw new ApiError(400, "Group name is required");
 
   let updatedListIds = [];
-  if (listTodo.length > 0) {
+  if (listIds.length > 0) {
     const updateResult = await List.updateMany(
       {
-        _id: { $in: listTodo },
+        _id: { $in: listIds },
       },
       { isInGroup: true }
     );
-    updatedListIds = updateResult.modifiedCount > 0 ? listTodo : [];
+    updatedListIds = updateResult.modifiedCount > 0 ? listIds : [];
   }
 
   const createdGroup = await Group.create({
     name,
-    list: updatedListIds,
+    listIds: updatedListIds,
     belongsTo: user?._id,
   });
 
@@ -50,8 +52,11 @@ const deleteGroup = asyncHandler(async (req, res) => {
   const group = await Group.findById(group_id);
   if (!group) throw new ApiError(404, "Group is not found");
 
-  if (group?.list && group.list.length > 0) {
-    await List.updateMany({ _id: { $in: group?.list } }, { isInGroup: false });
+  if (group?.listIds && group.listIds.length > 0) {
+    await List.updateMany(
+      { _id: { $in: group?.listIds } },
+      { $set: { isInGroup: false } }
+    );
   }
 
   await Group.findByIdAndDelete(group_id);
@@ -63,23 +68,23 @@ const deleteGroup = asyncHandler(async (req, res) => {
 
 const updateGroup = asyncHandler(async (req, res) => {
   const { group_id } = req.params;
-  const { name = "", list = [] } = req.body;
+  const { name = "", listIds = [] } = req.body;
 
-  const findList = await List.find({ _id: { $in: listTodo } });
+  const findList = await List.find({ _id: { $in: listIds } });
 
   if (findList.some((lists) => lists?.isInGroup))
     throw new ApiError(400, "List already exits in group");
 
   if (!isValidObjectId(group_id)) throw new ApiError(400, "Invalid group id");
 
-  if (!(name.trim() || (Array.isArray(list) && list.length > 0)))
+  if (!(name.trim() || (Array.isArray(listIds) && listIds.length > 0)))
     throw new ApiError(400, "Atleast one field ( name , list ) is required");
 
   const updatedGroup = await Group.findByIdAndUpdate(
     group_id,
     {
       $set: { name: name.trim() || undefined },
-      $push: { list: { $each: list } },
+      $push: { list: { $each: listIds } },
     },
     {
       new: true,
@@ -90,7 +95,7 @@ const updateGroup = asyncHandler(async (req, res) => {
   if (!updatedGroup)
     throw new ApiError(500, "Server error while updating the group");
 
-  await List.updateMany({ _id: { $in: list } }, { isInGroup: true });
+  await List.updateMany({ _id: { $in: listIds } }, { isInGroup: true });
 
   return res
     .status(200)
@@ -110,16 +115,34 @@ const getGroup = asyncHandler(async (req, res) => {
     {
       $lookup: {
         from: "lists",
-        localField: "list",
+        localField: "listIds",
         foreignField: "_id",
-        as: "list",
+        as: "lists",
+        pipeline: [
+          {
+            $project: {
+              listName: 1,
+              description: 1,
+              theme: 1,
+              createdAt: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        lists: 1,
+        belongsTo: 1,
+        createdAt: 1,
       },
     },
   ]);
 
   return res
     .status(200)
-    .json(new ApiResponse(200, groupData[0], "Group is getted successfully"));
+    .json(new ApiResponse(200, groupData, "Group is getted successfully"));
 });
 
 const removeList = asyncHandler(async (req, res) => {
@@ -134,7 +157,7 @@ const removeList = asyncHandler(async (req, res) => {
   const updatedGroup = await Group.findByIdAndUpdate(
     group_id,
     {
-      $pull: { list: { $in: list_id } },
+      $pull: { listIds: { $in: list_id } },
     },
     { new: true }
   );
@@ -151,10 +174,71 @@ const removeList = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedGroup, "List is deleted from the group"));
 });
 
+const getGroupById = asyncHandler(async (req, res) => {
+  const { group_id } = req.params;
+  if (!isValidObjectId(group_id)) throw new ApiError(400, "Invalid Group Id");
+
+  const groupData = await Group.findById(group_id);
+
+  if (!groupData) throw new ApiError(404, "Group is not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, groupData, "Group is getted successfully"));
+});
+
+const getGroupList = asyncHandler(async (req, res) => {
+  const { group_id } = req.params;
+  if (!isValidObjectId(group_id)) throw new ApiError(400, "Invalid group id");
+
+  const groupData = await Group.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(group_id),
+      },
+    },
+    {
+      $lookup: {
+        from: "lists",
+        localField: "listIds",
+        foreignField: "_id",
+        as: "lists",
+        pipeline: [
+          {
+            $project: {
+              listName: 1,
+              description: 1,
+              theme: 1,
+              createdAt: 1,
+              isInGroup: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        name: 1,
+        lists: 1,
+        belongsTo: 1,
+        createdAt: 1,
+      },
+    },
+  ]);
+  console.log(groupData[0]);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, groupData[0], "Group list is getted successfully")
+    );
+});
+
 module.exports = {
   createGroup,
   deleteGroup,
   updateGroup,
   getGroup,
   removeList,
+  getGroupList,
+  getGroupById,
 };

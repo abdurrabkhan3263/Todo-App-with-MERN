@@ -18,10 +18,6 @@ function List_Todo() {
     },
   });
 
-  React.useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   if (isError) {
     toast.error(error);
   }
