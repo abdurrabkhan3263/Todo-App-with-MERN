@@ -46,7 +46,7 @@ function AddGroup() {
   });
   const updateMutation = useMutation({
     mutationKey: ["updateGroup"],
-    mutationFn: async (data, id) => await TodoApi.updateGroup(data, id),
+    mutationFn: async (data) => await TodoApi.updateGroup(data[0], data[1]),
     onSuccess: () => {
       toast.success("Group Updated Successfully");
       client.invalidateQueries("group");
@@ -62,7 +62,7 @@ function AddGroup() {
       mutate(data);
     } else {
       const updatedData = { ...data, listIds: ids, deletedIds };
-      updateMutation.mutate(updatedData, group_id);
+      updateMutation.mutate([updatedData, group_id]);
     }
   };
 

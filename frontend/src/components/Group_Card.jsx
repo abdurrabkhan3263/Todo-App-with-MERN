@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { Delete, Navigation } from "@/assets/icons";
 import useApp from "@/context/context";
 import "./ui/scroll.css";
 import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit } from "@/assets/icons";
+import TodoApi from "@/Api/Todo";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 function Group_Card({ groupName, id }) {
   const { mode } = useApp();
   const headerBox = React.useRef(null);
   const navigate = useNavigate();
+  const [showDelete, setShowDelete] = useState(false);
+  const client = useQueryClient();
 
   const handleMouseEnter = () => {
     headerBox.current.classList.remove("hidden");
@@ -19,8 +25,41 @@ function Group_Card({ groupName, id }) {
     headerBox.current.classList.remove("activeBox");
   };
 
+  const deleteMutation = useMutation({
+    mutationKey: ["deleteGroup"],
+    mutationFn: async () => await TodoApi.deleteGroup(id),
+    onSuccess: () => {
+      toast.success("Group Deleted Successfully");
+      client.invalidateQueries("group");
+    },
+    onError: (message) => toast.error(message),
+  });
+
+  const handleDelete = () => {
+    deleteMutation.mutate();
+    setShowDelete(false);
+  };
+
   return (
     <>
+      {showDelete && (
+        <div className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-[rgba(0,0,0,0.5)]">
+          <div className="flex h-[20%] w-[20%] items-center justify-between bg-white px-4">
+            <button
+              onClick={() => setShowDelete(false)}
+              className="rounded-lg border px-5 py-1 hover:bg-lightNav"
+            >
+              Close
+            </button>
+            <button
+              className="rounded-lg border px-5 py-1 hover:bg-lightNav"
+              onClick={handleDelete}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
       <div
         key={id}
         className={`groupCard relative flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-1 hover:scale-105 ${mode === "dark" ? "bg-darkCard shadow-lg shadow-light" : "bg-lightCard shadow-lg shadow-dark"} p-4`}
@@ -40,7 +79,7 @@ function Group_Card({ groupName, id }) {
             </button>
             <button
               className="fit rounded-full bg-slate-200 p-2 text-stone-700 hover:bg-lightNav hover:text-white"
-              onClick={() => ""}
+              onClick={() => setShowDelete(true)}
             >
               <Delete />
             </button>

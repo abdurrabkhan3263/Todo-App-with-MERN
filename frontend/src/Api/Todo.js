@@ -144,9 +144,35 @@ class Todo {
   }
   // DELETING
 
+  async deleteTodo(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/todo/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async deleteLists(id) {
     try {
       const response = await fetch(`${this.baseUrl}/list/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async deleteGroup(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/group/delete/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -213,6 +239,21 @@ class Todo {
       throw error;
     }
   }
+  async setIsCompleted(id) {
+    try {
+      const response = await fetch(`${this.baseUrl}/todo/complete`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ todo_id: id }),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result?.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
   async updateList(id, data) {
     try {
       const response = await fetch(`${this.baseUrl}/list/update/${id}`, {
@@ -231,7 +272,7 @@ class Todo {
     }
   }
   async updateGroup(data, id) {
-    console.log(id);
+    console.log(data);
     try {
       const response = await fetch(`${this.baseUrl}/group/update/${id}`, {
         method: "PATCH",

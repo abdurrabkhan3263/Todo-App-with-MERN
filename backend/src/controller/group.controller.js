@@ -70,27 +70,29 @@ const updateGroup = asyncHandler(async (req, res) => {
   const { group_id } = req.params;
   const { name = "", listIds = [], deletedIds = [] } = req.body;
 
+  // validation
+  if (!(name.trim() || (Array.isArray(listIds) && listIds.length > 0)))
+    throw new ApiError(400, "Atleast one field ( name , list ) is required");
+
+  if (!isValidObjectId(group_id)) throw new ApiError(400, "Invalid group id");
+
+  // real code
   const findList = await List.find({ _id: { $in: listIds } });
 
   if (findList.some((lists) => lists?.isInGroup))
     throw new ApiError(400, "List already exits in group");
 
-  if (!isValidObjectId(group_id)) throw new ApiError(400, "Invalid group id");
+  await Group.findByIdAndUpdate(group_id, {
+    $pull: { listIds: { $in: deletedIds } },
+  });
 
-  if (!(name.trim() || (Array.isArray(listIds) && listIds.length > 0)))
-    throw new ApiError(400, "Atleast one field ( name , list ) is required");
-
-  if (deletedIds.length > 0)
-    await List.findByIdAndUpdate(
-      { _id: { $in: listIds } },
-      { isInGroup: false }
-    );
+  console.log("hello1");
 
   const updatedGroup = await Group.findByIdAndUpdate(
     group_id,
     {
-      $set: { name: name.trim() || undefined },
-      $push: { list: { $each: listIds } },
+      $set: { name: name ? name.trim() : undefined },
+      $push: { listIds: { $each: listIds } },
     },
     {
       new: true,
@@ -98,11 +100,19 @@ const updateGroup = asyncHandler(async (req, res) => {
     }
   );
 
+  console.log("hello2");
+
   if (!updatedGroup)
     throw new ApiError(500, "Server error while updating the group");
 
   await List.updateMany({ _id: { $in: listIds } }, { isInGroup: true });
 
+  if (deletedIds.length > 0) {
+    console.log("hello sir how are you");
+    await List.updateMany({ _id: { $in: deletedIds } }, { isInGroup: false });
+  }
+
+  console.log("hello3");
   return res
     .status(200)
     .json(new ApiResponse(200, updatedGroup, "Group is updated successfully"));
@@ -231,7 +241,6 @@ const getGroupList = asyncHandler(async (req, res) => {
       },
     },
   ]);
-  console.log(groupData[0]);
   return res
     .status(200)
     .json(

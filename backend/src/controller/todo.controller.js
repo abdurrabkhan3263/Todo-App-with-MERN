@@ -189,9 +189,17 @@ const completeTodo = asyncHandler(async (req, res) => {
     { new: true }
   );
 
+  console.log(updatedTodo?.isCompleted);
+
   return res
     .status(200)
-    .json(new ApiResponse(200, updatedTodo, "Todo is completed successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        updatedTodo,
+        `${updatedTodo?.isCompleted ? "Mark completed" : "Mark uncompleted"}`
+      )
+    );
 });
 
 const getDirectAllTodo = asyncHandler(async (req, res) => {

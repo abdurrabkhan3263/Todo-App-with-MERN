@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import TodoApi from "@/Api/Todo";
 import { toast } from "sonner";
 import "./ui/scroll.css";
+import { debounce, set } from "lodash";
 
 function Todo_Card({
   title,
@@ -18,7 +19,7 @@ function Todo_Card({
 }) {
   const [todoData, setTodoData] = useState({ todoName: title, content });
   const [preventDoubleClick, setPreventDoubleClick] = useState(false);
-  const [boolValue, setBoolValue] = useState({ isImportant, isCompleted });
+  const [completed, setCompleted] = useState(isCompleted);
   const { mode } = useApp();
   const star = useRef(null);
   const loader = useRef(null);
@@ -98,12 +99,36 @@ function Todo_Card({
     const value = e.target.value;
     setTodoData((prev) => ({ ...prev, [name]: value }));
   };
+
+  const completedMutation = useMutation({
+    mutationKey: ["completedTodo"],
+    mutationFn: async () => await TodoApi.setIsCompleted(id),
+    onSuccess: (result) => {
+      toast.success(result.message);
+    },
+    onError: (error) => {
+      toast.error(error);
+    },
+  });
+
+  const handleIsCompleted = debounce(() => {
+    completedMutation.mutate();
+    setCompleted((prev) => !prev);
+  }, 800);
+
   return (
     <div
       className={`wow flex h-[340px] w-full flex-col overflow-hidden rounded-2xl text-white transition-all hover:-translate-y-[-0.15rem] hover:scale-[1.02] ${mode === "dark" ? "bg-darkCard shadow-lg shadow-light" : "bg-lightCard shadow-lg shadow-dark"} p-4`}
     >
       <div className="flex items-center justify-between">
-        <input type="checkbox" name="" id="" className="h-6 w-6" />
+        <input
+          checked={completed}
+          type="checkbox"
+          name=""
+          id=""
+          className="h-6 w-6"
+          onChange={handleIsCompleted}
+        />
         <button className="relative h-full w-8" onClick={handleIsImpotent}>
           <Star
             height={"35px"}
@@ -126,7 +151,7 @@ function Todo_Card({
             value={todoData.todoName}
             onChange={handleChange}
             name="todoName"
-            className="mt-2.5 h-full w-full resize-none bg-transparent text-center text-6xl font-bold outline-none"
+            className={`mt-2.5 h-full w-full ${completed ? "line-through" : "no-underline"} resize-none bg-transparent text-center text-6xl font-bold outline-none`}
           ></textarea>
         </div>
         <div className="h-[40%] overflow-hidden">
@@ -134,7 +159,7 @@ function Todo_Card({
             value={todoData.content}
             onChange={handleChange}
             name="content"
-            className="h-full w-full resize-none bg-transparent pt-2 text-xl font-medium outline-none"
+            className={`h-full w-full resize-none ${completed ? "line-through" : "no-underline"} bg-transparent pt-2 text-xl font-medium outline-none`}
           ></textarea>
         </div>
       </div>
