@@ -68,7 +68,7 @@ const deleteGroup = asyncHandler(async (req, res) => {
 
 const updateGroup = asyncHandler(async (req, res) => {
   const { group_id } = req.params;
-  const { name = "", listIds = [] } = req.body;
+  const { name = "", listIds = [], deletedIds = [] } = req.body;
 
   const findList = await List.find({ _id: { $in: listIds } });
 
@@ -79,6 +79,12 @@ const updateGroup = asyncHandler(async (req, res) => {
 
   if (!(name.trim() || (Array.isArray(listIds) && listIds.length > 0)))
     throw new ApiError(400, "Atleast one field ( name , list ) is required");
+
+  if (deletedIds.length > 0)
+    await List.findByIdAndUpdate(
+      { _id: { $in: listIds } },
+      { isInGroup: false }
+    );
 
   const updatedGroup = await Group.findByIdAndUpdate(
     group_id,

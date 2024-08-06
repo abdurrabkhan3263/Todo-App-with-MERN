@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 function AddGroup() {
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const { group_id } = useParams();
   const [ids, setIds] = useState([]);
   const [deletedIds, setDeletedIds] = useState([]); // its work if we have ids from params
@@ -44,16 +44,38 @@ function AddGroup() {
     },
     onError: (message) => toast.error(message),
   });
+  const updateMutation = useMutation({
+    mutationKey: ["updateGroup"],
+    mutationFn: async (data, id) => await TodoApi.updateGroup(data, id),
+    onSuccess: () => {
+      toast.success("Group Updated Successfully");
+      client.invalidateQueries("group");
+      client.invalidateQueries("listsForGroup");
+      navigate(-1);
+    },
+    onError: (message) => toast.error(message),
+  });
+
   const formSubmit = (data) => {
-    data = { ...data, listIds: ids };
-    mutate(data);
+    if (!group_id) {
+      data = { ...data, listIds: ids };
+      mutate(data);
+    } else {
+      const updatedData = { ...data, listIds: ids, deletedIds };
+      updateMutation.mutate(updatedData, group_id);
+    }
   };
 
   const handleRemoveIds = (id) => {
-    if (!group_id) {
-      setIds((prev) => [...prev.filter((ids) => ids !== id)]);
+    setIds((prev) => [...prev.filter((ids) => ids !== id)]);
+  };
+
+  const handleDeletedIds = (id) => {
+    console.log(deletedIds.includes(id));
+    if (deletedIds.includes(id)) {
+      setDeletedIds(() => [...deletedIds.filter((ids) => ids !== id)]);
     } else {
-      console.log("hai bhai");
+      setDeletedIds((prev) => [...prev, id]);
     }
   };
 
@@ -62,8 +84,10 @@ function AddGroup() {
   };
 
   useEffect(() => {
-    console.log(data);
-  }, [data]);
+    if (group_id) {
+      setValue("name", data?.name || "");
+    }
+  }, [data, group_id]);
 
   if (isLoading) {
     return <div>Loading....</div>;
@@ -98,15 +122,21 @@ function AddGroup() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Array.isArray(data) && data.length > 0
-                    ? data.map(({ _id, listName, isInGroup }) => (
+                  {Array.isArray(data?.lists) && data.lists.length > 0
+                    ? data.lists.map(({ _id, listName, isInGroup }) => (
                         <tr key={_id} className="bg-red-400">
                           <td className="py-2">{listName}</td>
                           <td className="py-2">
                             {ids.includes(_id) || isInGroup ? (
-                              <Button onClick={() => handleRemoveIds(_id)}>
-                                Remove
-                              </Button>
+                              ids.includes(_id) ? (
+                                <Button onClick={() => handleRemoveIds(_id)}>
+                                  Remove
+                                </Button>
+                              ) : (
+                                <Button onClick={() => handleDeletedIds(_id)}>
+                                  {deletedIds.includes(_id) ? "Undo" : "Delete"}
+                                </Button>
+                              )
                             ) : (
                               <Button onClick={() => handleAddIds(_id)}>
                                 Add
