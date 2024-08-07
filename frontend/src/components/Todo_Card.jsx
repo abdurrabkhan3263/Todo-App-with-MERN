@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Star } from "../assets/icons";
 import useApp from "@/context/context";
 import gsap from "gsap";
@@ -101,20 +101,32 @@ function Todo_Card({
   };
 
   const completedMutation = useMutation({
-    mutationKey: ["completedTodo"],
-    mutationFn: async () => await TodoApi.setIsCompleted(id),
+    mutationKey: ["completedTodo", completed],
+    mutationFn: async () => {
+      if (isCompleted !== completed) {
+        return await TodoApi.setIsCompleted(id, completed);
+      }
+      return "";
+    },
     onSuccess: (result) => {
-      toast.success(result.message);
+      result?.message && toast.success(result.message);
     },
     onError: (error) => {
       toast.error(error);
     },
   });
 
-  const handleIsCompleted = debounce(() => {
-    completedMutation.mutate();
+  const deb = useCallback(
+    debounce(() => {
+      completedMutation.mutate();
+    }, 800),
+    [],
+  );
+
+  const handleIsCompleted = () => {
+    deb();
     setCompleted((prev) => !prev);
-  }, 800);
+  };
 
   return (
     <div

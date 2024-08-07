@@ -173,23 +173,19 @@ const getImportant = asyncHandler(async (req, res) => {
 });
 
 const completeTodo = asyncHandler(async (req, res) => {
-  const { todo_id } = req.body;
+  const { todo_id, status } = req.body;
+
+  console.log(req.body);
 
   if (!isValidObjectId(todo_id)) throw new ApiError(400, "Invalid todo id");
-
-  const todo = await Todo.findById(todo_id);
-
-  if (!todo) throw new ApiError(400, "Todo is not found");
 
   const updatedTodo = await Todo.findByIdAndUpdate(
     todo_id,
     {
-      isCompleted: !todo.isCompleted,
+      isCompleted: status,
     },
     { new: true }
   );
-
-  console.log(updatedTodo?.isCompleted);
 
   return res
     .status(200)

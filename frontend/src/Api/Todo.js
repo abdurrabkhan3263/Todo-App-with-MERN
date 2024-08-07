@@ -239,12 +239,12 @@ class Todo {
       throw error;
     }
   }
-  async setIsCompleted(id) {
+  async setIsCompleted(id, isCompleted) {
     try {
       const response = await fetch(`${this.baseUrl}/todo/complete`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ todo_id: id }),
+        body: JSON.stringify({ todo_id: id, status: isCompleted }),
         credentials: "include",
       });
       const result = await response.json();
