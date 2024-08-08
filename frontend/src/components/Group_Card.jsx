@@ -7,7 +7,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit } from "@/assets/icons";
 import TodoApi from "@/Api/Todo";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 function Group_Card({ groupName, id }) {
   const { mode } = useApp();

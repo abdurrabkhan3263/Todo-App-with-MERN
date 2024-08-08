@@ -87,8 +87,8 @@ const updateTodo = asyncHandler(async (req, res) => {
 
   const updateValue = {};
 
-  if (todoName.trim) updateValue.todoName = todoName;
-  if (content.trim) updateValue.content = content;
+  if (todoName.trim()) updateValue.todoName = todoName;
+  if (content.trim()) updateValue.content = content;
   if (dueDate) updateValue.dueDate = dueDate;
   if (remindMe) updateValue.remindMe = remindMe;
 

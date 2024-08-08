@@ -14,7 +14,7 @@ function List_Todo() {
     queryKey: ["listTodos"],
     queryFn: async () => {
       if (!id) return { message: "Id is not found" };
-      return await TodoApi.getListsTodos(id);
+      return await TodoApi.getListsTodo(id);
     },
   });
 

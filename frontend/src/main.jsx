@@ -55,7 +55,7 @@ const router = createBrowserRouter(
         <Route path="/todo" element={<AddTodo />} />
       </Route>
       <Route path="/List" element={<List />}>
-        <Route path="add-list" element={<AddList />} />
+        <Route path="add-list/:list_id?" element={<AddList />} />
       </Route>
       <Route path="/group" element={<Group />}>
         <Route path="add-group/:group_id?" element={<AddGroup />} />

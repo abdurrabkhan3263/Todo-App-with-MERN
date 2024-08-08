@@ -1,40 +1,103 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import TodoApi from "@/Api/Todo";
 import { useNavigate } from "react-router-dom";
 import useApp from "@/context/context";
+import { useParams } from "react-router-dom";
 import { darkColor, lightColor } from "@/lib/colors";
 
 function AddList() {
-  const { register, handleSubmit, setValue } = useForm();
-  const [darkColorF, setDarkColor] = useState("");
-  const [lightColorF, setLightColor] = useState("");
+  const { register, handleSubmit, setValue, getValues } = useForm();
+  const [uiColor, setUiColor] = useState({});
 
+  const { list_id } = useParams();
   const { mode } = useApp();
   const navigate = useNavigate();
   const client = useQueryClient();
+
+  const { data } = useQuery({
+    queryKey: ["todos"],
+    queryFn: async () => {
+      if (list_id) {
+        return await TodoApi.getListsTodo(list_id);
+      }
+      return "";
+    },
+  });
 
   const handleFormMutation = useMutation({
     mutationKey: ["addList"],
     mutationFn: async (data) => TodoApi.createList(data),
     onSuccess: async (result) => {
       toast.success(result.message);
-      setValue("listName", "");
-      setValue("description", "");
-      setValue("theme", {});
       client.invalidateQueries({ queryKey: ["lists"] });
+      navigate("/list");
     },
     onMessage: async (result) => toast.success(result.message),
   });
 
-  const formSubmit = (data) => {
-    handleFormMutation.mutate(data);
+  const updateMutation = useMutation({
+    mutationKey: ["upList"],
+    mutationFn: async (data) => {
+      return await TodoApi.updateList(list_id, data);
+    },
+    onSuccess: (result) => {
+      toast.success(result.message);
+      client.invalidateQueries({ queryKey: ["lists"] });
+      navigate("/list");
+    },
+    onError: (message) => toast.error(message),
+  });
+
+  const formSubmit = (formData) => {
+    if (!list_id) {
+      handleFormMutation.mutate(formData);
+    } else {
+      const {
+        listName: fromDataListName = "",
+        description: fromDataDescription = "",
+        theme: { lightColor = "", darkColor = "" },
+      } = formData;
+      const {
+        listName = "",
+        description = "",
+        theme: { lightColor: lColor = "", darkColor: dColor = "" },
+      } = data;
+
+      if (
+        listName !== fromDataListName ||
+        description !== fromDataDescription ||
+        lightColor !== lColor ||
+        darkColor !== dColor
+      ) {
+        updateMutation.mutate(formData);
+      } else {
+        navigate("/list");
+      }
+    }
   };
+
+  const setColor = useCallback(
+    (colorObj) => {
+      setValue("theme", { ...getValues("theme"), ...colorObj });
+    },
+    [getValues("theme")],
+  );
+
+  useEffect(() => {
+    if (list_id && data) {
+      const { description = "", listName = "", theme = "" } = data;
+      setValue("listName", listName);
+      setValue("description", description);
+      setValue("theme", theme);
+      setUiColor(theme);
+    }
+  }, [data]);
 
   return (
     <div
@@ -75,11 +138,11 @@ function AddList() {
                     <div
                       key={color}
                       value={color}
-                      className={`h-[40px] w-[40px] flex-shrink-0 cursor-pointer rounded-full ${lightColorF === color && "border-2"} border-white`}
+                      className={`h-[40px] w-[40px] flex-shrink-0 cursor-pointer rounded-full ${uiColor?.lightColor === color && "border-2"} border-white`}
                       style={{ backgroundColor: color }}
                       onClick={() => {
-                        setLightColor(color);
-                        setValue("theme.lightColor", color);
+                        setUiColor((prev) => ({ ...prev, lightColor: color }));
+                        setColor({ lightColor: color });
                       }}
                     ></div>
                   );
@@ -94,11 +157,11 @@ function AddList() {
                     <div
                       key={color}
                       value={color}
-                      className={`h-[40px] w-[40px] flex-shrink-0 cursor-pointer rounded-full ${darkColorF === color && "border-2"} border-white`}
+                      className={`h-[40px] w-[40px] flex-shrink-0 cursor-pointer rounded-full ${uiColor?.darkColor === color && "border-2"} border-white`}
                       style={{ backgroundColor: color }}
                       onClick={() => {
-                        setDarkColor(color);
-                        setValue("theme.darkColor", color);
+                        setUiColor((prev) => ({ ...prev, darkColor: color }));
+                        setColor({ darkColor: color });
                       }}
                     ></div>
                   );
@@ -107,7 +170,7 @@ function AddList() {
             </div>
           </div>
           <Button size={"lg"} type={"submit"}>
-            Add
+            {list_id ? "Update" : "Add"}
           </Button>
         </form>
       </div>

@@ -53,7 +53,7 @@ class Todo {
       throw error;
     }
   }
-  async getListsTodos(id) {
+  async getListsTodo(id) {
     try {
       const response = await fetch(`${this.baseUrl}/list/${id}`, {
         method: "GET",
@@ -69,6 +69,8 @@ class Todo {
         listName: result.data?.listName,
         todos: result.data?.todos,
         message: result.message,
+        description: result.data?.description,
+        theme: result.data?.theme,
       };
     } catch (error) {
       throw error;
@@ -275,6 +277,22 @@ class Todo {
     console.log(data);
     try {
       const response = await fetch(`${this.baseUrl}/group/update/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) throw result.message || "Something went wrong";
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async updateTodo(data, id) {
+    console.log(data);
+    try {
+      const response = await fetch(`${this.baseUrl}/todo/update/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
