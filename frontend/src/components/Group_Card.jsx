@@ -72,7 +72,7 @@ function Group_Card({ groupName, id }) {
           <div className="flex items-center justify-between p-3">
             <button
               className="fit relative h-[40px] w-[40px] rounded-full bg-slate-200 p-2 text-stone-700 hover:bg-lightNav hover:text-white"
-              onClick={() => navigate(`add-group/${id}`)}
+              onClick={() => navigate(`edit-group/${id}`)}
             >
               <Edit className="absolute bottom-1/2 right-1/2 translate-x-1/2 translate-y-1/2" />
             </button>

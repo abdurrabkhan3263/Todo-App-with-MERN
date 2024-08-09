@@ -8,6 +8,7 @@ import AddCard from "./AddCard";
 import AddTodo from "./AddTodo";
 import AddList from "./AddList";
 import AddGroup from "./AddGroup";
+import EditGroup from "./EditGroup";
 
 export {
   SideNav,
@@ -20,4 +21,5 @@ export {
   AddTodo,
   AddList,
   AddGroup,
+  EditGroup,
 };

@@ -12,7 +12,7 @@ function List() {
     queryKey: ["lists"],
     queryFn: async () => await TodoApi.getLists(),
   });
-  React.useEffect(() => {}, [data]);
+
   if (isError) {
     toast.error(error);
   }

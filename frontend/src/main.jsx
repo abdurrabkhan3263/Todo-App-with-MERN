@@ -29,6 +29,7 @@ import {
   AddTodo,
   AddList,
   AddGroup,
+  EditGroup,
 } from "./components/index.js";
 import { Toaster } from "./components/ui/sonner.jsx";
 
@@ -58,7 +59,8 @@ const router = createBrowserRouter(
         <Route path="add-list/:list_id?" element={<AddList />} />
       </Route>
       <Route path="/group" element={<Group />}>
-        <Route path="add-group/:group_id?" element={<AddGroup />} />
+        <Route path="add-group" element={<AddGroup />} />
+        <Route path="edit-group/:group_id" element={<EditGroup />} />
       </Route>
       <Route path="/important" element={<Important />} />
       <Route path="/todo/:id" element={<List_Todo />}>

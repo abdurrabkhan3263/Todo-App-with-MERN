@@ -1,25 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Input } from "./ui/input";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
 import useApp from "@/context/context";
 import TodoApi from "@/Api/Todo";
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 function AddGroup() {
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue } = useForm();
-  const { group_id } = useParams();
+  const { register, handleSubmit } = useForm();
   const [ids, setIds] = useState([]);
-  const [deletedIds, setDeletedIds] = useState([]); // its work if we have ids from params
   const { mode } = useApp();
   const client = useQueryClient();
 
@@ -29,8 +22,8 @@ function AddGroup() {
     isError,
     error,
   } = useQuery({
-    queryKey: ["listsForGroup", group_id],
-    queryFn: async () => await TodoApi.getListForAdding(group_id),
+    queryKey: ["listsForGroup"],
+    queryFn: async () => await TodoApi.getListForAdding(null),
   });
 
   const { mutate } = useMutation({
@@ -40,54 +33,23 @@ function AddGroup() {
       toast.success("Group Created Successfully");
       client.invalidateQueries("group");
       client.invalidateQueries("listsForGroup");
-      navigate(-1);
-    },
-    onError: (message) => toast.error(message),
-  });
-  const updateMutation = useMutation({
-    mutationKey: ["updateGroup"],
-    mutationFn: async (data) => await TodoApi.updateGroup(data[0], data[1]),
-    onSuccess: () => {
-      toast.success("Group Updated Successfully");
-      client.invalidateQueries("group");
-      client.invalidateQueries("listsForGroup");
-      navigate(-1);
+      navigate("/group");
     },
     onError: (message) => toast.error(message),
   });
 
   const formSubmit = (data) => {
-    if (!group_id) {
-      data = { ...data, listIds: ids };
-      mutate(data);
-    } else {
-      const updatedData = { ...data, listIds: ids, deletedIds };
-      updateMutation.mutate([updatedData, group_id]);
-    }
+    data = { ...data, listIds: ids };
+    mutate(data);
   };
 
   const handleRemoveIds = (id) => {
     setIds((prev) => [...prev.filter((ids) => ids !== id)]);
   };
 
-  const handleDeletedIds = (id) => {
-    console.log(deletedIds.includes(id));
-    if (deletedIds.includes(id)) {
-      setDeletedIds(() => [...deletedIds.filter((ids) => ids !== id)]);
-    } else {
-      setDeletedIds((prev) => [...prev, id]);
-    }
+  const handleSetIds = (id) => {
+    setIds((prev) => [...prev, id]);
   };
-
-  const handleAddIds = (_id) => {
-    setIds((prev) => [...prev, _id]);
-  };
-
-  useEffect(() => {
-    if (group_id) {
-      setValue("name", data?.name || "");
-    }
-  }, [data, group_id]);
 
   if (isLoading) {
     return <div>Loading....</div>;
@@ -103,58 +65,73 @@ function AddGroup() {
           <X width={"35px"} height={"35px"} />
         </button>
       </div>
-      <div className="w-full flex-1 pt-3">
-        <form
-          onSubmit={handleSubmit(formSubmit)}
-          className="flex h-full w-full flex-col justify-between"
-        >
-          <div className="flex w-full flex-col gap-y-6">
-            <div className="h-fit">
-              <label htmlFor="list_name">Group Name</label>
-              <Input id="list_name" {...register("name", { required: true })} />
-            </div>
-            <div className="h-96 overflow-y-auto">
-              <table className="w-full text-center">
-                <thead className="bg-blue-500">
-                  <tr>
-                    <td className="py-2">List Name</td>
-                    <td className="py-2">Action</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.isArray(data?.lists) && data.lists.length > 0
-                    ? data.lists.map(({ _id, listName, isInGroup }) => (
-                        <tr key={_id} className="bg-red-400">
-                          <td className="py-2">{listName}</td>
-                          <td className="py-2">
-                            {ids.includes(_id) || isInGroup ? (
-                              ids.includes(_id) ? (
-                                <Button onClick={() => handleRemoveIds(_id)}>
-                                  Remove
-                                </Button>
-                              ) : (
-                                <Button onClick={() => handleDeletedIds(_id)}>
-                                  {deletedIds.includes(_id) ? "Undo" : "Delete"}
-                                </Button>
-                              )
-                            ) : (
-                              <Button onClick={() => handleAddIds(_id)}>
-                                Add
-                              </Button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    : "No List Availabe"}
-                </tbody>
-              </table>
+      <form
+        onSubmit={handleSubmit(formSubmit)}
+        className="w-full"
+        style={{ height: "calc(100% - 48px" }}
+      >
+        <div className="flex h-full flex-col">
+          <div className="h-fit">
+            <label htmlFor="list_name" className="text-lg font-medium">
+              Group Name
+            </label>
+            <Input
+              id="list_name"
+              {...register("name", { required: true })}
+              className="mt-1.5"
+              placeholder="Enter name"
+            />
+          </div>
+          <div className="mt-3 flex w-full flex-1 flex-col overflow-auto">
+            <div className="h-full w-full">
+              <div className="sticky top-0 flex rounded-md bg-blue-500 text-center text-white">
+                <div className="w-1/2 py-2 font-medium">ListName</div>
+                <div className="w-1/2 py-2 font-medium">Action</div>
+              </div>
+              {Array.isArray(data?.lists) && data.lists.length > 0 ? (
+                data.lists.map(({ _id, listName }) => (
+                  <div
+                    key={_id}
+                    className="my-2 flex items-center rounded-md bg-gray-400 text-center text-white"
+                  >
+                    <div className="h-full w-1/2 py-2">{listName}</div>
+                    <div className="w-1/2 py-2">
+                      {ids.includes(_id) ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveIds(_id)}
+                          className="rounded-md bg-teal-700 px-7 py-1 hover:bg-teal-900"
+                        >
+                          Delete
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleSetIds(_id)}
+                          className="rounded-md bg-teal-700 px-7 py-1 hover:bg-teal-900"
+                        >
+                          Add
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="w-full text-center">
+                  <p className="mt-3 text-xl font-semibold text-red-500">
+                    No List Available
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-          <Button size={"lg"} type={"submit"}>
-            Add
-          </Button>
-        </form>
-      </div>
+          <div className="mt-2 h-fit">
+            <Button size={"lg"} type={"submit"} className="w-full">
+              Add
+            </Button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }

@@ -134,7 +134,10 @@ class Todo {
         const groupList = groupData?.data?.lists || [];
         return {
           name: groupData?.data.name || "",
-          lists: [...listData, ...groupList],
+          lists: {
+            added: groupList,
+            notAdded: listData,
+          },
         };
       } else {
         const response = await this.getLists();

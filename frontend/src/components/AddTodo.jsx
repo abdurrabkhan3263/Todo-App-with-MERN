@@ -36,6 +36,7 @@ function AddTodo() {
     onSuccess: (message) => {
       toast.success(message);
       client.invalidateQueries({ queryKey: ["listTodos"] });
+      navigate(-1);
     },
     onError: (error) => toast.error(error),
   });

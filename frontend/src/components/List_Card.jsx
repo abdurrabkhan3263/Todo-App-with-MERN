@@ -9,7 +9,6 @@ import "./ui/scroll.css";
 import { Link } from "react-router-dom";
 
 function List_Card({ title, content, id, color }) {
-  const [listData, setListData] = useState({ listName: title, content, color });
   const [showDelete, setShowDelete] = useState(false);
   const navigate = useNavigate();
   const client = useQueryClient();
@@ -99,14 +98,7 @@ function List_Card({ title, content, id, color }) {
         <div className="flex-grow overflow-hidden">
           <div className="h-[60%] overflow-hidden">
             <textarea
-              value={
-                listData.listName.length > 12
-                  ? `${listData.listName.slice(0, 12)}....`
-                  : listData.listName
-              }
-              onChange={(e) =>
-                setListData((prev) => ({ ...prev, listName: e.target.value }))
-              }
+              value={title?.length > 12 ? `${title.slice(0, 12)}....` : title}
               name="listName"
               disabled
               className="mt-2.5 h-full w-full resize-none bg-transparent text-center text-6xl font-bold outline-none"
@@ -114,10 +106,7 @@ function List_Card({ title, content, id, color }) {
           </div>
           <div className="h-[40%] overflow-hidden">
             <textarea
-              value={listData.content}
-              onChange={(e) =>
-                setListData((prev) => ({ ...prev, content: e.target.value }))
-              }
+              value={content}
               name="content"
               disabled
               className="h-full w-full resize-none bg-transparent pt-2 text-xl font-medium outline-none"
